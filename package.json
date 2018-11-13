@@ -1,0 +1,20 @@
+{
+  "name": "revenuemanager",
+  "version": "1.0.0",
+  "description": "Revenue Mangament System",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app"
+  },
+  "dependencies": {
+    "express": "*",
+    "express-handlebars": "*",
+    "body-parser": "*"
+  },
+  "keywords": [
+    "revenue",
+    "manager"
+  ],
+  "author": "michael appiah-kubi, persol",
+  "license": "ISC"
+}
