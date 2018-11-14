@@ -1,9 +1,10 @@
 //require express module
 const express = require('express');
+const exphbs = require('express-handlebars');
 const app = express();
 
 //set handlebars
-const exphbs = require('express-handlebars');
+
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
@@ -15,8 +16,21 @@ app.set('port', process.env.PORT || 3000);
 
 //homepage route
 app.get('/',function(req,res){
-    res.send('hello');
+    res.render('login');
 });
+
+// 404 catch-all handler (middleware)
+app.use(function(req, res, next){
+    res.status(404);
+    res.render('404');
+    });
+
+    // 500 error handler (middleware)
+    app.use(function(err, req, res, next){
+    console.error(err.stack);
+    res.status(500);
+    res.render('500');
+    });
 
 //listen on port
 app.listen(app.get('port'), function(){
