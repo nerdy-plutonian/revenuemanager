@@ -11,7 +11,10 @@
     "express-handlebars": "*",
     "body-parser": "*",
     "node-fetch": "*",
-    "express-validator": "*"
+    "express-validator": "*",
+    "express-messages": "*",
+    "express-session": "*",
+    "connect-flash": "*"
   },
   "keywords": [
     "revenue",

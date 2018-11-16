@@ -1,11 +1,11 @@
 <div class="m-5">
 <div class="container">
-  {{#if errors}}
-    {{#each errors}}
-      <div class="alert alert-danger">{{this.msg}}</div>
-    {{/each}}
-  {{/if}}
     <div class="text-center">
+      {{#if errors}}
+          <div class="alert alert-danger">
+          <strong>Error!</strong> {{errors}}
+          </div>
+      {{/if}}
     <form class="form-signin" action="/login" method="POST">
       <img class="mb-4" src="/img/icons/icon-144x144.png" alt="" width="144" height="144">
       <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>

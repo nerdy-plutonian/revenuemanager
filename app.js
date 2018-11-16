@@ -4,12 +4,19 @@ const exphbs = require('express-handlebars');
 const app = express();
 //require body parser
 let bodyParser = require('body-parser')
+//require express validator
+const expressValidator = require('express-validator');
+//require express session
+const session = require('express-session');
+//require express messages
+//require connect flash
+const flash = require('connect-flash');
 
 //require fetch module
 const fetch = require('node-fetch');
 
 //require express validator
-const expressValidator = require('express-validator')
+const checkBody = require('express-validator/check')
 
 //set handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
@@ -22,8 +29,44 @@ app.use(bodyParser.json())
 //set static files
 app.use(express.static(__dirname + '/public'));
 
+//express session middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+  }));
+
+  //express messages middleware
+  app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
+//express validator middleware
+app.use(expressValidator({
+    errorFormatter: function(param, msg, value) {
+        var namespace = param.split('.')
+        , root = namespace.shift()
+        , formParam = root;
+
+        while(namespace.length) {
+            formParam += '[' + namespace.shift() + ']';
+        }
+        return {
+            param : formParam,
+            msg : msg,
+            value : value
+        };
+    }
+}));
+
 //set port
 app.set('port', process.env.PORT || 3000);
+
+//error
+let error = false;
 
 //get login page route
 app.get('/',function(req,res){
@@ -33,22 +76,12 @@ app.get('/',function(req,res){
 //get login page route
 app.get('/home',function(req,res){
     res.render('home');
+    
 });
 
 //post login route
 app.post('/login',function(req,res){
-
-    //check for empty strings
-    req.checkBody('username','username is required').notEmpty();
-    req.checkBody('password','password is required').notEmpty();
-
-    //get errors
-    let errors = req.validationErrors();
-    if(errors){
-        res.render('/login',{
-            errors:errors
-        });
-    }else{
+    let found = false;
     const username = req.body.username;
     const password = req.body.password;
     fetch('http://iml.npa-enterprise.com/AndroidPortalService/api/!/GetUserByUsername')
@@ -56,20 +89,21 @@ app.post('/login',function(req,res){
     .then((data) => {
         data.forEach(user => {
             if((username == user.szUserName) && (password == user.szPassword)){
-                res.redirect('/home');
-            }else{
-                res.redirect('/login',{
-                    errors:[
-                        {
-                            msg:"wrong credentials"
-                        }
-                    ]
-                });
+                console.log(`username: ${username} password: ${password}`);
+                found = true;
+                error = false;
             }
         });
+        if(found){
+            res.redirect('/home');
+        }else{
+            //error = true;
+            //res.redirect('/');
+            req.flash("error", "wrong credentials");
+            //res.send(req.flash('errors'));
+            res.render('login',{errors:req.flash('error')});
+        }
     });
-    console.log(`username: ${username} password: ${password}`);
-}
 });
 
 // 404 catch-all handler (middleware)
