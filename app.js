@@ -19,7 +19,10 @@ const fetch = require('node-fetch');
 const checkBody = require('express-validator/check')
 
 //set handlebars
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.engine('handlebars', exphbs({defaultLayout: 'main',
+layoutsDir : "public/views/layouts"
+}));
+app.set('views', 'public/views')
 app.set('view engine', 'handlebars');
 
 //body parse application/json
@@ -76,12 +79,19 @@ app.get('/',function(req,res){
 //get login page route
 app.get('/home',function(req,res){
     res.render('home');
-    
 });
 
 //post login route
 app.post('/login',function(req,res){
     let found = false;
+    //check for error express-validator
+    req.checkBody('username',"username field can not be empty").notEmpty();
+    req.checkBody('password',"password field can not be empty").notEmpty();
+    let errs = req.validationErrors();
+    if(errs){
+        req.flash("errorEmpty", "empty credentials");
+        res.render('login',{errors:req.flash('errorEmpty')});
+    }else{
     const username = req.body.username;
     const password = req.body.password;
     fetch('http://iml.npa-enterprise.com/AndroidPortalService/api/!/GetUserByUsername')
@@ -104,6 +114,7 @@ app.post('/login',function(req,res){
             res.render('login',{errors:req.flash('error')});
         }
     });
+}
 });
 
 // 404 catch-all handler (middleware)
